@@ -25,5 +25,27 @@ export default {
     } catch (error) {
       handleHttpError(res, error)
     }
+  },
+  async loginUser(req:Request, res:Response) {
+    try {
+      const { email, password } = req.body
+      const result = await userService.loginUser(email, password)
+
+      if(!result.success) {
+        const statusCode = getErrorStatusCode(result.errorType)
+        return res.status(statusCode).json({
+          success: false,
+          message: result.error
+        })
+      }
+
+      return res.status(200).json({
+        success: result.success,
+        message: 'User logged in successfully',
+        data: result.value
+      })
+    } catch (error) {
+      handleHttpError(res, error) 
+    }
   }
 }

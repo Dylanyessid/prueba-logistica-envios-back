@@ -2,6 +2,7 @@ import { AppDataSource } from "../config/db.js";
 import type { CreateUserDto } from "../dto/request/user.dto.js";
 import { User } from "../models/user.js";
 import { ErrorType } from "../utils/errrors.js";
+import { generateToken } from "../utils/jwt.js";
 import { comparePassword, hashPassword } from "../utils/passwords.js";
 import { fail, ok } from "../utils/result.js";
 
@@ -47,7 +48,8 @@ export default {
       if (!isPasswordValid) {
         return fail("Invalid email or password", ErrorType.BAD_REQUEST);
       }
-      return ok(user);
+      const token = generateToken({ userId: user.id });
+      return ok({ ...user, token });
     } catch (error) {
       console.error("Error logging in user:", error);
       return fail("Error logging in user", ErrorType.INTERNAL_ERROR);

@@ -20,3 +20,13 @@ export class CreateUserDto {
 
 }
 
+export class LoginUserDto {
+  @IsNotEmpty()
+  @IsEmail()
+  email!: string;
+  
+  @IsString()
+  @IsNotEmpty()
+  password!: string;
+}
+
