@@ -48,7 +48,7 @@ export default {
       if (!isPasswordValid) {
         return fail("Invalid email or password", ErrorType.BAD_REQUEST);
       }
-      const token = generateToken({ userId: user.id });
+      const token = generateToken({ userId: user.id, role: user.role });
       return ok({ ...user, token });
     } catch (error) {
       console.error("Error logging in user:", error);

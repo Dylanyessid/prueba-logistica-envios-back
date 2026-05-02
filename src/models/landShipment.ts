@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import type { ILandShipment } from "../interfaces/land-shipment.interface.js";
 
 @Entity('land_shipments')
@@ -21,6 +21,12 @@ export class LandShipment implements ILandShipment {
   @Column({type:'numeric', nullable: false, name: 'shipping_price'})
   shippingPrice!: number;
 
+  @Column({type:'numeric', nullable: false, name: 'discount_percentage'})
+  discountPercentage!: number;
+
+  @Column({type:'numeric', nullable: false, name: 'discount_amount'})
+  discountAmount!: number;
+
   @Column({type:'numeric', nullable: false, name: 'final_price'})
   finalPrice!: number;
 
@@ -41,4 +47,7 @@ export class LandShipment implements ILandShipment {
 
   @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at' })
   updatedAt!: Date;
+
+  @DeleteDateColumn({ type: 'timestamptz', name: 'deleted_at' })
+  deletedAt!: Date | null;
 }

@@ -42,7 +42,7 @@ export default {
       return res.status(200).json({
         success: result.success,
         message: 'User logged in successfully',
-        data: result.value
+        data: { token: result.value.token }
       })
     } catch (error) {
       handleHttpError(res, error) 

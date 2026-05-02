@@ -1,0 +1,28 @@
+import type { Request, Response } from "express";
+import landShipmentService from "../services/land-shipment.service.js";
+import { handleHttpError } from "../utils/controllerErrorHandler.js";
+import { getErrorStatusCode } from "../utils/errrors.js";
+
+export default {
+  async createLandShipment(req: Request, res: Response) {
+    try {
+      const result = await landShipmentService.createLandShipment(req.body);
+
+      if (!result.success) {
+        const statusCode = getErrorStatusCode(result.errorType);
+        return res.status(statusCode).json({
+          success: false,
+          message: result.error,
+        });
+      }
+
+      return res.status(201).json({
+        success: true,
+        message: "Land shipment created successfully",
+        data: result.value,
+      });
+    } catch (error) {
+      handleHttpError(res, error);
+    }
+  },
+};

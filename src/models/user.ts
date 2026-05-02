@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 import type { IUser } from "../interfaces/user.interface.js";
 
 @Entity('users')
@@ -24,4 +24,6 @@ export class User implements IUser {
   @Column({ type: 'timestamptz', name: 'updated_at' })
   updatedAt!: Date;
 
+  @DeleteDateColumn({ type: 'timestamptz', name: 'deleted_at' })
+   deletedAt!: Date | null;
 }

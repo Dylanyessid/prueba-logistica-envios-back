@@ -17,6 +17,6 @@ export const AppDataSource = new DataSource({
     username: envs.DB_USERNAME,
     password: envs.DB_PASSWORD,
     database: envs.DB_NAME,
-    logging: true,
+    //logging: true,
     entities: [User, Client, Product, Warehouse, Port, LandShipment, SeaShipment],
 });

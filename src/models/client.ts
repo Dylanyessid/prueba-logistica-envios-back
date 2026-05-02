@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import type { IClient } from "../interfaces/client.interface.js";
 
 @Entity('clients')
@@ -8,13 +8,7 @@ export class Client implements IClient {
 
   @Column({ type: 'int', unique: true })
   userId!: number;
- 
-  @Column({ type: 'varchar', length: 150 })
-  name!: string;
- 
-  @Column({ type: 'varchar', length: 150, unique: true })
-  email!: string;
- 
+
   @Column({ type: 'varchar', length: 20, nullable: true })
   phone!: string | null;
  
@@ -29,4 +23,7 @@ export class Client implements IClient {
 
   @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at' })
   updatedAt!: Date;
+
+  @DeleteDateColumn({ type: 'timestamptz', name: 'deleted_at' })
+  deletedAt!: Date | null;
 }

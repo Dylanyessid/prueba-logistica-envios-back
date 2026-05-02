@@ -5,7 +5,7 @@ export interface ISeaShipment {
   productQuantity: number;
   shippingPrice: number;
   finalPrice: number;
-  vehiclePlate: string;
+  fleetNumber: string;
   trackingNumber: string;
   registrationDate: Date;
   deliveryDate: Date;

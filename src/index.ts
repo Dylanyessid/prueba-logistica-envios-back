@@ -2,12 +2,14 @@ import "reflect-metadata";
 import express from "express"
 import { AppDataSource } from "./config/db.js"
 import apiRouter from "./routes/index.js"
-
+import cors from "cors"
+import morgan from "morgan"
 const app = express()
 
+app.use(cors())
+app.use(morgan('dev'))
 app.use(express.json())
 app.use('/api/v1', apiRouter)
-
 
 const connectDB = async () => {
   try {

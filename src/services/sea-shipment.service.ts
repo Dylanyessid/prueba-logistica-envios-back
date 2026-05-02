@@ -1,0 +1,97 @@
+import { AppDataSource } from "../config/db.js";
+import type { CreateSeaShipmentDto } from "../dto/request/sea-shipment.dto.js";
+import { Client } from "../models/client.js";
+import { Port } from "../models/ports.js";
+import { Product } from "../models/product.js";
+import { LandShipment } from "../models/landShipment.js";
+import { SeaShipment } from "../models/seaShipment.js";
+import { ErrorType } from "../utils/errrors.js";
+import { fail, ok } from "../utils/result.js";
+
+const clientRepository = AppDataSource.getRepository(Client);
+const productRepository = AppDataSource.getRepository(Product);
+const portRepository = AppDataSource.getRepository(Port);
+const landShipmentRepository = AppDataSource.getRepository(LandShipment);
+const seaShipmentRepository = AppDataSource.getRepository(SeaShipment);
+
+const SEA_DISCOUNT_PERCENTAGE = 3;
+
+const roundCurrency = (value: number): number => Number(value.toFixed(2));
+
+const buildPriceSummary = (shippingPrice: number, productQuantity: number) => {
+  const discountPercentage = productQuantity > 10 ? SEA_DISCOUNT_PERCENTAGE : 0;
+  const discountAmount = roundCurrency(shippingPrice * (discountPercentage / 100));
+  const finalPrice = roundCurrency(shippingPrice - discountAmount);
+
+  return { discountPercentage, discountAmount, finalPrice };
+};
+
+export default {
+  async createSeaShipment(data: CreateSeaShipmentDto) {
+    try {
+      const client = await clientRepository.findOne({ where: { id: data.clientId } });
+      if (!client) {
+        return fail("Client not found", ErrorType.NOT_FOUND);
+      }
+
+      const product = await productRepository.findOne({ where: { id: data.productId } });
+      if (!product) {
+        return fail("Product not found", ErrorType.NOT_FOUND);
+      }
+
+      const port = await portRepository.findOne({ where: { id: data.destinationPortId } });
+      if (!port) {
+        return fail("Port not found", ErrorType.NOT_FOUND);
+      }
+
+      const existingLandShipment = await landShipmentRepository.findOne({
+        where: { trackingNumber: data.trackingNumber },
+      });
+      const existingSeaShipment = await seaShipmentRepository.findOne({
+        where: { trackingNumber: data.trackingNumber },
+      });
+
+      if (existingLandShipment || existingSeaShipment) {
+        return fail("Tracking number already exists", ErrorType.CONFLICT);
+      }
+
+      const registrationDate = new Date(data.registrationDate);
+      const deliveryDate = new Date(data.deliveryDate);
+
+      if (deliveryDate < registrationDate) {
+        return fail("Delivery date must be greater than or equal to registration date", ErrorType.BAD_REQUEST);
+      }
+
+      const { discountPercentage, discountAmount, finalPrice } = buildPriceSummary(
+        data.shippingPrice,
+        data.productQuantity,
+      );
+
+      const shipment = seaShipmentRepository.create({
+        ...data,
+        fleetNumber: data.fleetNumber.toUpperCase(),
+        trackingNumber: data.trackingNumber.toUpperCase(),
+        registrationDate,
+        deliveryDate,
+        discountPercentage,
+        discountAmount,
+        finalPrice,
+      });
+
+      await seaShipmentRepository.save(shipment);
+
+      return ok({
+        shipment,
+        pricing: {
+          shippingPrice: data.shippingPrice,
+          discountPercentage,
+          discountAmount,
+          finalPrice,
+        },
+      });
+    } catch (error) {
+      console.error("Error creating sea shipment:", error);
+      return fail("Error creating sea shipment", ErrorType.INTERNAL_ERROR);
+    }
+  },
+};
