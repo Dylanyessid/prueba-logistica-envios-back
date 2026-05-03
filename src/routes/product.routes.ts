@@ -9,8 +9,8 @@ const router = Router();
 
 router.get("/",authMiddleware, productControllers.getAllProducts);
 router.get("/:id",authMiddleware, productControllers.getProductById);
-router.post("/", authMiddleware, roleMiddleware("admin"), validationMiddleware(CreateProductDto), productControllers.createProduct);
-router.patch("/:id",authMiddleware, roleMiddleware("admin"), validationMiddleware(UpdateProductDto), productControllers.updateProduct);
-router.delete("/:id", authMiddleware, roleMiddleware("admin"), productControllers.deleteProduct);
+router.post("/", authMiddleware, validationMiddleware(CreateProductDto), productControllers.createProduct);
+router.patch("/:id",authMiddleware,  validationMiddleware(UpdateProductDto), productControllers.updateProduct);
+router.delete("/:id", authMiddleware, productControllers.deleteProduct);
 
 export default router;

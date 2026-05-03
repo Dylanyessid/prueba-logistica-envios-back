@@ -4,6 +4,49 @@ import { handleHttpError } from "../utils/controllerErrorHandler.js";
 import { getErrorStatusCode } from "../utils/errrors.js";
 
 export default {
+  async getAllLandShipments(req: Request, res: Response) {
+    try {
+      const result = await landShipmentService.getAllLandShipments();
+
+      if (!result.success) {
+        const statusCode = getErrorStatusCode(result.errorType);
+        return res.status(statusCode).json({
+          success: false,
+          message: result.error,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: result.value,
+      });
+    } catch (error) {
+      handleHttpError(res, error);
+    }
+  },
+
+  async getLandShipmentById(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.id);
+      const result = await landShipmentService.getLandShipmentById(id);
+
+      if (!result.success) {
+        const statusCode = getErrorStatusCode(result.errorType);
+        return res.status(statusCode).json({
+          success: false,
+          message: result.error,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: result.value,
+      });
+    } catch (error) {
+      handleHttpError(res, error);
+    }
+  },
+
   async createLandShipment(req: Request, res: Response) {
     try {
       const result = await landShipmentService.createLandShipment(req.body);

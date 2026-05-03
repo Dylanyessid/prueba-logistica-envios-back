@@ -1,2 +1,1 @@
-export type { CreateUserDto } from "./request/user.dto.js";
-
+export type { CreateClientUserDto } from "./request/user.dto.js";

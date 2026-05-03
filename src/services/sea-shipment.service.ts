@@ -27,6 +27,36 @@ const buildPriceSummary = (shippingPrice: number, productQuantity: number) => {
 };
 
 export default {
+  async getAllSeaShipments() {
+    try {
+      const shipments = await seaShipmentRepository.find({
+        order: { id: "ASC" },
+      });
+
+      return ok(shipments);
+    } catch (error) {
+      console.error("Error fetching sea shipments:", error);
+      return fail("Error fetching sea shipments", ErrorType.INTERNAL_ERROR);
+    }
+  },
+
+  async getSeaShipmentById(id: number) {
+    try {
+      const shipment = await seaShipmentRepository.findOne({
+        where: { id },
+      });
+
+      if (!shipment) {
+        return fail("Sea shipment not found", ErrorType.NOT_FOUND);
+      }
+
+      return ok(shipment);
+    } catch (error) {
+      console.error("Error fetching sea shipment:", error);
+      return fail("Error fetching sea shipment", ErrorType.INTERNAL_ERROR);
+    }
+  },
+
   async createSeaShipment(data: CreateSeaShipmentDto) {
     try {
       const client = await clientRepository.findOne({ where: { id: data.clientId } });

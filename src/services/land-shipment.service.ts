@@ -27,6 +27,36 @@ const buildPriceSummary = (shippingPrice: number, productQuantity: number) => {
 };
 
 export default {
+  async getAllLandShipments() {
+    try {
+      const shipments = await landShipmentRepository.find({
+        order: { id: "ASC" },
+      });
+
+      return ok(shipments);
+    } catch (error) {
+      console.error("Error fetching land shipments:", error);
+      return fail("Error fetching land shipments", ErrorType.INTERNAL_ERROR);
+    }
+  },
+
+  async getLandShipmentById(id: number) {
+    try {
+      const shipment = await landShipmentRepository.findOne({
+        where: { id },
+      });
+
+      if (!shipment) {
+        return fail("Land shipment not found", ErrorType.NOT_FOUND);
+      }
+
+      return ok(shipment);
+    } catch (error) {
+      console.error("Error fetching land shipment:", error);
+      return fail("Error fetching land shipment", ErrorType.INTERNAL_ERROR);
+    }
+  },
+
   async createLandShipment(data: CreateLandShipmentDto) {
     try {
       const client = await clientRepository.findOne({ where: { id: data.clientId } });

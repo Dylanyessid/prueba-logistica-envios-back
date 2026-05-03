@@ -6,7 +6,7 @@ export class Client implements IClient {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: 'int', unique: true })
+  @Column({ type: 'int', unique: true, name: 'user_id' })
   userId!: number;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
