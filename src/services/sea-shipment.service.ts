@@ -5,6 +5,7 @@ import { Port } from "../models/ports.js";
 import { Product } from "../models/product.js";
 import { LandShipment } from "../models/landShipment.js";
 import { SeaShipment } from "../models/seaShipment.js";
+import { User } from "../models/user.js";
 import { ErrorType } from "../utils/errrors.js";
 import { fail, ok } from "../utils/result.js";
 
@@ -13,6 +14,7 @@ const productRepository = AppDataSource.getRepository(Product);
 const portRepository = AppDataSource.getRepository(Port);
 const landShipmentRepository = AppDataSource.getRepository(LandShipment);
 const seaShipmentRepository = AppDataSource.getRepository(SeaShipment);
+const userRepository = AppDataSource.getRepository(User);
 
 const SEA_DISCOUNT_PERCENTAGE = 3;
 
@@ -57,11 +59,35 @@ export default {
     }
   },
 
+  async deleteSeaShipment(id: number) {
+    try {
+      const shipment = await seaShipmentRepository.findOne({
+        where: { id },
+      });
+
+      if (!shipment) {
+        return fail("Sea shipment not found", ErrorType.NOT_FOUND);
+      }
+
+      await seaShipmentRepository.softRemove(shipment);
+
+      return ok(shipment);
+    } catch (error) {
+      console.error("Error deleting sea shipment:", error);
+      return fail("Error deleting sea shipment", ErrorType.INTERNAL_ERROR);
+    }
+  },
+
   async createSeaShipment(data: CreateSeaShipmentDto) {
     try {
       const client = await clientRepository.findOne({ where: { id: data.clientId } });
       if (!client) {
         return fail("Client not found", ErrorType.NOT_FOUND);
+      }
+
+      const user = await userRepository.findOne({ where: { id: client.userId } });
+      if (!user) {
+        return fail("Client user not found", ErrorType.NOT_FOUND);
       }
 
       const product = await productRepository.findOne({ where: { id: data.productId } });
@@ -99,6 +125,10 @@ export default {
 
       const shipment = seaShipmentRepository.create({
         ...data,
+        clientName: user.name,
+        clientDocument: client.document,
+        productName: product.name,
+        destinationPortName: port.name,
         fleetNumber: data.fleetNumber.toUpperCase(),
         trackingNumber: data.trackingNumber.toUpperCase(),
         registrationDate,

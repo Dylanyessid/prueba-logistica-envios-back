@@ -47,6 +47,29 @@ export default {
     }
   },
 
+  async deleteSeaShipment(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.id);
+      const result = await seaShipmentService.deleteSeaShipment(id);
+
+      if (!result.success) {
+        const statusCode = getErrorStatusCode(result.errorType);
+        return res.status(statusCode).json({
+          success: false,
+          message: result.error,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Sea shipment deleted successfully",
+        data: result.value,
+      });
+    } catch (error) {
+      handleHttpError(res, error);
+    }
+  },
+
   async createSeaShipment(req: Request, res: Response) {
     try {
       const result = await seaShipmentService.createSeaShipment(req.body);

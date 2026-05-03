@@ -9,11 +9,23 @@ export class SeaShipment implements ISeaShipment {
   @Column({type: 'integer', nullable: false, name: 'client_id'})
   clientId!: number;
 
+  @Column({ type: 'varchar', length: 150, nullable: false, name: 'client_name' })
+  clientName!: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: false, name: 'client_document' })
+  clientDocument!: string;
+
   @Column({type: 'integer', nullable: false, name:'product_id'})
   productId!: number;
 
+  @Column({ type: 'varchar', length: 150, nullable: false, name: 'product_name' })
+  productName!: string;
+
   @Column({type: 'integer', nullable: false, name: 'destination_port_id'})
   destinationPortId!: number;
+
+  @Column({ type: 'varchar', length: 150, nullable: false, name: 'destination_port_name' })
+  destinationPortName!: string;
 
   @Column({type: 'integer', nullable: false, name: 'product_quantity'})
   productQuantity!: number;
