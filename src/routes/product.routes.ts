@@ -142,12 +142,10 @@ router.get("/:id",authMiddleware, productControllers.getProductById);
  *         description: Datos inválidos
  *       401:
  *         description: No autorizado
- *       403:
- *         description: Acceso solo para admin
  *       409:
  *         description: Producto ya existe
  */
-router.post("/", authMiddleware, roleMiddleware("admin"), validationMiddleware(CreateProductDto), productControllers.createProduct);
+router.post("/", authMiddleware, validationMiddleware(CreateProductDto), productControllers.createProduct);
 
 /**
  * @swagger
@@ -177,12 +175,10 @@ router.post("/", authMiddleware, roleMiddleware("admin"), validationMiddleware(C
  *         description: Datos inválidos
  *       401:
  *         description: No autorizado
- *       403:
- *         description: Acceso solo para admin
  *       404:
  *         description: Producto no encontrado
  */
-router.patch("/:id",authMiddleware, roleMiddleware("admin"), validationMiddleware(UpdateProductDto), productControllers.updateProduct);
+router.patch("/:id",authMiddleware, validationMiddleware(UpdateProductDto), productControllers.updateProduct);
 
 /**
  * @swagger
@@ -204,11 +200,9 @@ router.patch("/:id",authMiddleware, roleMiddleware("admin"), validationMiddlewar
  *         description: Producto eliminado lógicamente
  *       401:
  *         description: No autorizado
- *       403:
- *         description: Acceso solo para admin
  *       404:
  *         description: Producto no encontrado
  */
-router.delete("/:id", authMiddleware, roleMiddleware("admin"), productControllers.deleteProduct);
+router.delete("/:id", authMiddleware, productControllers.deleteProduct);
 
 export default router;
