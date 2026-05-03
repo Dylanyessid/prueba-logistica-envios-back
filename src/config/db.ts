@@ -18,8 +18,6 @@ export const AppDataSource = new DataSource({
     password: envs.DB_PASSWORD,
     database: envs.DB_NAME,
     //logging: true,
-    ssl:{
-        rejectUnauthorized: false
-    },
+    ssl: envs.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     entities: [User, Client, Product, Warehouse, Port, LandShipment, SeaShipment],
 });

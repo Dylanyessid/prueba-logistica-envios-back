@@ -92,19 +92,22 @@ export default {
         })
       }
 
-      const getClientResult = await clientService.getClientByUserId(getUserResult.value.id)
+      let clientId = null;
+      if(getUserResult.value.role.toLowerCase() == "client") {
+        const getClientResult = await clientService.getClientByUserId(getUserResult.value.id)
       
-      if(!getClientResult.success) {
-        const statusCode = getErrorStatusCode(getClientResult.errorType)
-        return res.status(statusCode).json({
-          success: false,
-          message: getClientResult.error
-        })
+        if(!getClientResult.success) {
+          const statusCode = getErrorStatusCode(getClientResult.errorType)
+          return res.status(statusCode).json({
+            success: false,
+            message: getClientResult.error
+          })
+        }
+        clientId = getClientResult.value.id;
       }
-      const token = generateToken({ userId: getUserResult.value.id, role: getUserResult.value.role, clientId: getClientResult.value.id });
-
+     
+      const token = generateToken({ userId: getUserResult.value.id, role: getUserResult.value.role, ...(clientId ? { clientId } : {}) });
       
-
       return res.status(200).json({
         success: true,
         message: 'User logged in successfully',
