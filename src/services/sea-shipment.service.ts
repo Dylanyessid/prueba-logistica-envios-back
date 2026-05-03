@@ -1,5 +1,5 @@
 import { AppDataSource } from "../config/db.js";
-import type { CreateSeaShipmentDto } from "../dto/request/sea-shipment.dto.js";
+import type { CreateSeaShipmentDto, UpdateSeaShipmentDto } from "../dto/request/sea-shipment.dto.js";
 import { Client } from "../models/client.js";
 import { Port } from "../models/ports.js";
 import { Product } from "../models/product.js";
@@ -75,6 +75,109 @@ export default {
     } catch (error) {
       console.error("Error deleting sea shipment:", error);
       return fail("Error deleting sea shipment", ErrorType.INTERNAL_ERROR);
+    }
+  },
+
+  async updateSeaShipment(id: number, data: UpdateSeaShipmentDto) {
+    try {
+      const shipment = await seaShipmentRepository.findOne({
+        where: { id },
+      });
+
+      if (!shipment) {
+        return fail("Sea shipment not found", ErrorType.NOT_FOUND);
+      }
+
+
+      let clientName = shipment.clientName;
+      let clientDoc = shipment.clientDocument;
+     
+
+      let productName = shipment.productName;
+      if (data.productId) {
+        const product = await productRepository.findOne({ where: { id: data.productId } });
+        if (!product) {
+          return fail("Product not found", ErrorType.NOT_FOUND);
+        }
+        productName = product.name;
+      }
+
+      let portName = shipment.destinationPortName;
+      if (data.destinationPortId) {
+        const port = await portRepository.findOne({ where: { id: data.destinationPortId } });
+        if (!port) {
+          return fail("Port not found", ErrorType.NOT_FOUND);
+        }
+        portName = port.name;
+      }
+
+      const existingTrackingNumber = data.trackingNumber ? data.trackingNumber.toUpperCase() : shipment.trackingNumber;
+      if (data.trackingNumber && data.trackingNumber !== shipment.trackingNumber) {
+        const existingLandShipment = await landShipmentRepository.findOne({
+          where: { trackingNumber: existingTrackingNumber },
+        });
+        const existingSeaShipment = await seaShipmentRepository.findOne({
+          where: { trackingNumber: existingTrackingNumber },
+        });
+
+        if (existingLandShipment || existingSeaShipment) {
+          return fail("Tracking number already exists", ErrorType.CONFLICT);
+        }
+      }
+
+      const productQuantity = data.productQuantity ?? shipment.productQuantity;
+      const shippingPrice = data.shippingPrice ?? shipment.shippingPrice;
+
+      const registrationDate = data.registrationDate
+        ? new Date(data.registrationDate)
+        : shipment.registrationDate;
+      const deliveryDate = data.deliveryDate
+        ? new Date(data.deliveryDate)
+        : shipment.deliveryDate;
+
+      if (deliveryDate < registrationDate) {
+        return fail("Delivery date must be greater than or equal to registration date", ErrorType.BAD_REQUEST);
+      }
+
+      const { discountPercentage, discountAmount, finalPrice } = buildPriceSummary(
+        shippingPrice,
+        productQuantity,
+      );
+
+      const updatedShipment = {
+        ...shipment,
+        clientId: data.clientId ?? shipment.clientId,
+        clientName: clientName,
+        clientDocument: clientDoc,
+        productId: data.productId ?? shipment.productId,
+        productName: productName,
+        destinationPortId: data.destinationPortId ?? shipment.destinationPortId,
+        destinationPortName: portName,
+        productQuantity,
+        shippingPrice,
+        fleetNumber: data.fleetNumber ? data.fleetNumber.toUpperCase() : shipment.fleetNumber,
+        trackingNumber: existingTrackingNumber,
+        registrationDate,
+        deliveryDate,
+        discountPercentage,
+        discountAmount,
+        finalPrice,
+      };
+
+      await seaShipmentRepository.save(updatedShipment);
+
+      return ok({
+        shipment: updatedShipment,
+        pricing: {
+          shippingPrice,
+          discountPercentage,
+          discountAmount,
+          finalPrice,
+        },
+      });
+    } catch (error) {
+      console.error("Error updating sea shipment:", error);
+      return fail("Error updating sea shipment", ErrorType.INTERNAL_ERROR);
     }
   },
 

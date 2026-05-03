@@ -1,6 +1,6 @@
 import { Router } from "express";
 import landShipmentControllers from "../controllers/land-shipment.controllers.js";
-import { CreateLandShipmentDto } from "../dto/request/land-shipment.dto.js";
+import { CreateLandShipmentDto, UpdateLandShipmentDto } from "../dto/request/land-shipment.dto.js";
 import { authMiddleware } from "../middlewares/jwtValidation.js";
 import { validationMiddleware } from "../middlewares/dtoValidation.js";
 
@@ -53,6 +53,39 @@ const router = Router();
  *           type: string
  *           format: date
  *           example: 2026-05-05
+ *     UpdateLandShipmentDto:
+ *       type: object
+ *       properties:
+ *         clientId:
+ *           type: integer
+ *           example: 1
+ *         productId:
+ *           type: integer
+ *           example: 2
+ *         destinationWarehouseId:
+ *           type: integer
+ *           example: 3
+ *         productQuantity:
+ *           type: integer
+ *           example: 20
+ *         shippingPrice:
+ *           type: number
+ *           format: float
+ *           example: 120000
+ *         vehiclePlate:
+ *           type: string
+ *           example: XYZ987
+ *         trackingNumber:
+ *           type: string
+ *           example: NEW1N2W3N4W
+ *         registrationDate:
+ *           type: string
+ *           format: date
+ *           example: 2026-05-01
+ *         deliveryDate:
+ *           type: string
+ *           format: date
+ *           example: 2026-05-06
  *     LandShipment:
  *       type: object
  *       properties:
@@ -240,5 +273,40 @@ router.delete("/:id", authMiddleware, landShipmentControllers.deleteLandShipment
  *         description: Número de guía duplicado
  */
 router.post("/", authMiddleware, validationMiddleware(CreateLandShipmentDto), landShipmentControllers.createLandShipment);
+
+/**
+ * @swagger
+ * /api/v1/land-shipments/{id}:
+ *   patch:
+ *     tags:
+ *       - Land Shipments
+ *     summary: Editar un envío terrestre
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateLandShipmentDto'
+ *     responses:
+ *       200:
+ *         description: Envío terrestre actualizado exitosamente
+ *       400:
+ *         description: Datos inválidos o fecha de entrega inválida
+ *       401:
+ *         description: No autorizado
+ *       404:
+ *         description: Envío, cliente, producto o bodega no encontrada
+ *       409:
+ *         description: Número de guía duplicado
+ */
+router.patch("/:id", authMiddleware, validationMiddleware(UpdateLandShipmentDto), landShipmentControllers.updateLandShipment);
 
 export default router;

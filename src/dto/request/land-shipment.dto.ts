@@ -1,4 +1,4 @@
-import { IsAlphanumeric, IsDateString, IsInt, IsNotEmpty, IsNumber, IsPositive, IsString, Matches } from "class-validator";
+import { IsAlphanumeric, IsDateString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, Matches } from "class-validator";
 
 export class CreateLandShipmentDto {
   @IsInt()
@@ -41,4 +41,56 @@ export class CreateLandShipmentDto {
 
   @IsDateString()
   deliveryDate!: string;
+}
+
+export class UpdateLandShipmentDto {
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  clientId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  productId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  destinationWarehouseId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  productQuantity?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  shippingPrice?: number;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^[A-Z]{3}[0-9]{3}$/, {
+    message: "vehiclePlate must have the format AAA123",
+  })
+  vehiclePlate?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @IsAlphanumeric()
+  @Matches(/^[A-Za-z0-9]{10}$/, {
+    message: "trackingNumber must have exactly 10 alphanumeric characters",
+  })
+  trackingNumber?: string;
+
+  @IsOptional()
+  @IsDateString()
+  registrationDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  deliveryDate?: string;
 }

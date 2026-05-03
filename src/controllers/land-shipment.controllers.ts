@@ -91,4 +91,27 @@ export default {
       handleHttpError(res, error);
     }
   },
+
+  async updateLandShipment(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.id);
+      const result = await landShipmentService.updateLandShipment(id, req.body);
+
+      if (!result.success) {
+        const statusCode = getErrorStatusCode(result.errorType);
+        return res.status(statusCode).json({
+          success: false,
+          message: result.error,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Land shipment updated successfully",
+        data: result.value,
+      });
+    } catch (error) {
+      handleHttpError(res, error);
+    }
+  },
 };
